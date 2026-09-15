@@ -6,7 +6,7 @@
 #include <SDL3/SDL.h>
 
 void timer_init();
-int get_rand(int min, int max);
+int timer_get_rand(int min, int max);
 
 
 #endif

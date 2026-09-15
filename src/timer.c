@@ -5,7 +5,7 @@ void timer_init() {
     srand(time(NULL));
 }
 
-int get_rand(int min, int max) {
+int timer_get_rand(int min, int max) {
     assert(max >= min);
     unsigned int range = (unsigned int)(max - min) + 1;
     unsigned int limit = RAND_MAX - (RAND_MAX % range);

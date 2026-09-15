@@ -3,39 +3,13 @@
 
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
+#include "piece.h"
 
 
-typedef struct {
-    char block[4][4];
-    SDL_Color color;
-    int x, y;
-} Tetromino;
-
-
-// #FFA200FF Orange J
-// #0000FFFF Blue   L
-// #00EEFFFF Cyan   I
-// #FAF000FF Yellow O
-// #00FF00FF Green  S
-// #FF0000FF Red    Z
-// #8300D4FF Purple T
-
-
-extern Tetromino J;
-extern Tetromino L;
-extern Tetromino I;
-extern Tetromino O;
-extern Tetromino S;
-extern Tetromino Z;
-extern Tetromino T;
-
-Tetromino* tetromino_copy(Tetromino *tetromino);
-Tetromino* get_random(void);
-Tetromino* get_current(void);
 void tetris_clear_board(void);
 bool tetris_can_move(Tetromino *tetromino, int dx, int dy);
 void tetris_lock_tetromino(void);
-void tetris_init(SDL_Window *window, SDL_Renderer *renderer, int ww, int wh, bool *run_state);
+void tetris_init(SDL_Window *window, SDL_Renderer *renderer, int ww, int wh);
 void tetris_rotate(Tetromino *tetromino);
 void tetris_move(Tetromino *tetromino, int px, int py);
 void update_viewport(int win_w, int win_h);
@@ -43,10 +17,11 @@ void tetris_draw(void);
 void tetris_draw_tetromino(Tetromino *tetromino, int px, int py);
 void tetris_update(SDL_Event *event);
 void tetris_end();
-
+bool tetris_get_state();
+void tetris_set_state(bool state);
 
 // Used for finding SDL Events. Will remove this eventually when I don't need it anymore.
-inline const char *sdl_event_name(Uint32 type) {
+static inline const char *sdl_event_name(Uint32 type) {
     switch (type) {
         // Application events
         case SDL_EVENT_QUIT:                   return "SDL_EVENT_QUIT";

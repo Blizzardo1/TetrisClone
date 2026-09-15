@@ -5,9 +5,7 @@
 
 #define INIT_BOARD_WIDTH 10
 #define INIT_BOARD_HEIGHT 20
-#define SPAWN_CENTER_X 4
-#define SPAWN_CENTER_Y 2
-#define TETROMINO_BLOCK_SIZE 32
+
 
 #define ASPECT_RATIO 16.f / 9.f // Respect 16:9
 
@@ -16,121 +14,29 @@ int window_height;
 int board_width;
 int board_height;
 
-Tetromino J = {
-    .block = {
-        {' ', ' ', ' ', ' '},
-        {' ', ' ', '.', ' '},
-        {' ', ' ', '.', ' '},
-        {' ', '.', '.', ' '},
-    },
-    .color = {0,0,255,255} // Blue
-};
-
-Tetromino L = {
-    .block = {
-        {' ', ' ', ' ', ' '},
-        {' ', '.', ' ', ' '},
-        {' ', '.', ' ', ' '},
-        {' ', '.', '.', ' '},
-    },
-    .color = {255,162,0,255} // Orange
-};
-
-Tetromino I = {
-    .block = {
-        {' ', ' ', '.', ' '},
-        {' ', ' ', '.', ' '},
-        {' ', ' ', '.', ' '},
-        {' ', ' ', '.', ' '},
-    },
-    .color = {0,238,255,255} // Cyan
-};
-
-Tetromino O = {
-    .block = {
-        {' ', ' ', ' ', ' '},
-        {' ', ' ', ' ', ' '},
-        {' ', '.', '.', ' '},
-        {' ', '.', '.', ' '},
-    },
-    .color = {250,240,0,255} // Yellow
-};
-
-Tetromino S = {
-    .block = {
-        {' ', ' ', ' ', ' '},
-        {' ', ' ', '.', '.'},
-        {' ', '.', '.', ' '},
-        {' ', ' ', ' ', ' '},
-    },
-    .color = {0,255,0,255} // Green
-};
-
-Tetromino Z = {
-    .block = {
-        {' ', ' ', ' ', ' '},
-        {'.', '.', ' ', ' '},
-        {' ', '.', '.', ' '},
-        {' ', ' ', ' ', ' '},
-    },
-    .color = {255,0,0,255} // Red
-};
-
-Tetromino T = {
-    .block = {
-        {' ', ' ', ' ', ' '},
-        {' ', ' ', '.', ' '},
-        {' ', '.', '.', '.'},
-        {' ', ' ', ' ', ' '},
-    },
-    .color = {131,0,212,255} // Purple
-};
-
 SDL_Color LIGHTGRAY = { 200, 200, 200, 255 };
 SDL_Color BLACK = {0, 0, 0, 255};
 SDL_Color WHITE = {255,255,255,255};
 
 SDL_Window *_window = NULL;
 SDL_Renderer *_renderer = NULL;
-bool *running;
+bool tetris_running;
 char board[INIT_BOARD_HEIGHT][INIT_BOARD_WIDTH];
 
-Tetromino *current;
-Tetromino *next;
 
-Tetromino* tetromino_copy(Tetromino *tetromino) {
-    Tetromino *t = malloc(sizeof(Tetromino));
-    memcpy(t, tetromino, sizeof(Tetromino));
-    return t;
+bool tetris_get_state() {
+    return tetris_running;
 }
 
-Tetromino* get_random() {
-    int rand = get_rand(0, 6);
-    switch(rand) {
-        case 0: return tetromino_copy(&J);
-        case 1: return tetromino_copy(&L);
-        case 2: return tetromino_copy(&I);
-        case 3: return tetromino_copy(&O);
-        case 4: return tetromino_copy(&S);
-        case 5: return tetromino_copy(&T);
-        case 6: return tetromino_copy(&Z);
-    }
-    // Should never be able to return a null Tetromino
-    return NULL;
+void tetris_set_state(bool state) {
+    tetris_running = state;
 }
 
-Tetromino* get_current() {
-    return current;
-}
 
 void _set_draw_color(SDL_Color c) {
     SDL_SetRenderDrawColor(_renderer, c.r, c.g, c.b, c.a);
 }
 
-void _center_tetromino(void) {
-    current->x = SPAWN_CENTER_X * ((board_width / 2) *  (TETROMINO_BLOCK_SIZE / 2));
-    current->y = SPAWN_CENTER_Y * ((board_height  / 2) * (TETROMINO_BLOCK_SIZE / 2));
-}
 
 void tetris_clear_board() {
     for(int y = 0; y < 4; y++) {
@@ -141,6 +47,7 @@ void tetris_clear_board() {
 }
 
 void tetris_lock_tetromino(void) {
+    Tetromino *current = piece_get_current();
     for(int row = 0; row < 4; row++) {
         for(int col = 0; col < 4; col++) {
             if(current->block[row][col] != ' ') {
@@ -148,9 +55,7 @@ void tetris_lock_tetromino(void) {
             }
         }
     }
-    current = next;
-    _center_tetromino();
-    next = get_random();
+    piece_spawn(board_width, board_height);
 }
 
 bool tetris_can_move(Tetromino *tetromino, int dx, int dy) {
@@ -222,21 +127,24 @@ void tetris_draw_tetromino(Tetromino *tetromino, int px, int py) {
     }
 }
 
-void tetris_init(SDL_Window *window, SDL_Renderer *renderer, int ww, int wh, bool *run_state) {
+void tetris_init(SDL_Window *window, SDL_Renderer *renderer, int ww, int wh) {
     _window = window;
     _renderer = renderer;
     window_width = ww;
     window_height = wh;
     board_width = INIT_BOARD_WIDTH;
     board_height = INIT_BOARD_HEIGHT;
-    running = run_state;
+    timer_init();
     TTF_Init();
     board_init();
+    piece_init(board_width, board_height);
     tetris_clear_board();
+    tetris_set_state(true);
 }
 
 void tetris_end() {
-    running = false;
+    SDL_Log("Ending Game");
+    tetris_set_state(false);
     board_end();
 }
 
@@ -266,19 +174,21 @@ void update_viewport(int win_w, int win_h) {
 }
 
 void tetris_draw(void) {
-        _set_draw_color(BLACK);
-        SDL_RenderClear(_renderer);
-        board_draw_plane(_renderer, BLACK);
-        board_draw(_renderer, (window_width / 2) - (board_width / 2), (window_height / 2) - (board_height / 2), board_width, board_height);
-        board_draw_text(_renderer, "Tetris", 10, 10, 16, WHITE);
-        board_draw_text(_renderer, "Next", 1800, 60, 16, LIGHTGRAY);
-        if(current) {
-            tetris_draw_tetromino(current, current->x, current->y);
-        }
-        if(next) {
-            tetris_draw_tetromino(next, 1600, 100);
-        }
-        SDL_RenderPresent(_renderer);
+    Tetromino *current = piece_get_current();
+    Tetromino *next = piece_get_next();
+    _set_draw_color(BLACK);
+    SDL_RenderClear(_renderer);
+    board_draw_plane(_renderer, BLACK);
+    board_draw(_renderer, (window_width / 2) - (board_width / 2), (window_height / 2) - (board_height / 2), board_width, board_height);
+    board_draw_text(_renderer, "Tetris", 10, 10, 16, WHITE);
+    board_draw_text(_renderer, "Next", 1800, 60, 16, LIGHTGRAY);
+    if(current) {
+    tetris_draw_tetromino(current, current->x, current->y);
+    }
+    if(next) {
+    tetris_draw_tetromino(next, 1600, 100);
+    }
+    SDL_RenderPresent(_renderer);
 }
 
 void tetris_update(SDL_Event *event) {
@@ -292,7 +202,7 @@ void tetris_update(SDL_Event *event) {
             break;
         case SDL_EVENT_QUIT:
             SDL_Log("Quit event received");
-            running = false;
+            tetris_set_state(false);
             break;
         case SDL_EVENT_POLL_SENTINEL:
             // Still processing events, do not log
@@ -316,49 +226,42 @@ void tetris_update(SDL_Event *event) {
             SDL_Log("Mouse entered window");
             break;
         case SDL_EVENT_WINDOW_RESIZED:
-            SDL_Log("Window resized to (%d, %d)", event->window.data1, event->window.data2);
+            SDL_Log("Window %d resized to (%d, %d)", event->window.windowID, event->window.data1, event->window.data2);
             update_viewport(event->window.data1, event->window.data2);
             break;
         case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
-            SDL_Log("Window close requested");
-            running = false;
+            SDL_Log("Window %d close requested", event->window.windowID);
+            tetris_set_state(false);
             break;
         case SDL_EVENT_WINDOW_FOCUS_GAINED:
-            SDL_Log("Window gained focus");
+            SDL_Log("Window %d gained focus", event->window.windowID);
             break;
         case SDL_EVENT_WINDOW_FOCUS_LOST:
-            SDL_Log("Window lost focus");
+            SDL_Log("Window %d lost focus", event->window.windowID);
             break;
         case SDL_EVENT_WINDOW_MINIMIZED:
-            SDL_Log("Window minimized");
+            SDL_Log("Window %d minimized", event->window.windowID);
             break;
         case SDL_EVENT_WINDOW_MAXIMIZED:
-            SDL_Log("Window maximized");
+            SDL_Log("Window %d maximized", event->window.windowID);
             break;
         case SDL_EVENT_WINDOW_RESTORED:
-            SDL_Log("Window restored");
+            SDL_Log("Window %d restored", event->window.windowID);
             break;
         case SDL_EVENT_WINDOW_MOVED:
-            SDL_Log("Window moved to (%d, %d)", event->window.data1, event->window.data2);
+            SDL_Log("Window %d moved to (%d, %d)", event->window.windowID, event->window.data1, event->window.data2);
             break;
         case SDL_EVENT_WINDOW_EXPOSED:
-            SDL_Log("Window exposed");
+            SDL_Log("Window %d exposed", event->window.windowID);
             break;
         case SDL_EVENT_WINDOW_HIDDEN:
-            SDL_Log("Window hidden");
+            SDL_Log("Window %d hidden", event->window.windowID);
             break;
         case SDL_EVENT_WINDOW_SHOWN:
-            SDL_Log("Window shown");
+            SDL_Log("Window %d shown", event->window.windowID);
             break;
         default:
             // SDL_Log("Event type: %s - %d", sdl_event_name(event->type), event->type);
             break;
-    }
-    if(!current) {
-        current = get_random();
-        _center_tetromino();
-    }
-    if(!next) {
-        next = get_random();
     }
 }
