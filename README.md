@@ -16,7 +16,7 @@ A Tetris clone written in C using SDL3, SDL3_image, and SDL3_ttf.
 - Font loading and on-screen text rendering (JetBrains Mono Nerd Font)
 - Verbose SDL event logging for input/window/keyboard events
 - RNG seed implemented.
-- 
+
 ### Not done
 
 - Hard drop (drops the piece to the lowest available row)
