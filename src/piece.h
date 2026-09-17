@@ -2,11 +2,9 @@
 #define PIECE_H
 
 #include <SDL3/SDL.h>
-#include <stdlib.h>
-#include "timer.h"
 #include "board.h"
 
-#define SPAWN_CENTER_X 4
+#define SPAWN_CENTER_X (BOARD_WIDTH / 2)
 #define SPAWN_CENTER_Y 2
 #define TETROMINO_BLOCK_SIZE 32
 
@@ -40,6 +38,11 @@ Tetromino* piece_tetromino_copy(Tetromino *tetromino);
 Tetromino* piece_get_random(void);
 Tetromino* piece_get_current(void);
 Tetromino* piece_get_next(void);
+
+bool piece_can_move(Tetromino *tetromino, int dx, int dy, char (*board)[BOARD_WIDTH], int board_width, int board_height);
+void piece_move(Tetromino *tetromino, int px, int py, char (*board)[BOARD_WIDTH], int board_width, int board_height);
+void piece_rotate(Tetromino *tetromino);
 void piece_spawn(int board_width, int board_height);
+void piece_draw(Tetromino *tetromino, int px, int py);
 
 #endif

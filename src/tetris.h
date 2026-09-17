@@ -3,12 +3,15 @@
 
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
+#include "board.h"
 #include "piece.h"
+#include "color.h"
 
+#define ASPECT_RATIO 16.f / 9.f // Respect 16:9
 
-void tetris_clear_board(void);
+void tetris_clear_board(char (*board)[BOARD_WIDTH]);
 bool tetris_can_move(Tetromino *tetromino, int dx, int dy);
-void tetris_lock_tetromino(void);
+void tetris_lock_tetromino(char (*board)[BOARD_WIDTH], int board_width, int board_height);
 void tetris_init(SDL_Window *window, SDL_Renderer *renderer, int ww, int wh);
 void tetris_rotate(Tetromino *tetromino);
 void tetris_move(Tetromino *tetromino, int px, int py);
@@ -19,6 +22,7 @@ void tetris_update(SDL_Event *event);
 void tetris_end();
 bool tetris_get_state();
 void tetris_set_state(bool state);
+
 
 // Used for finding SDL Events. Will remove this eventually when I don't need it anymore.
 static inline const char *sdl_event_name(Uint32 type) {

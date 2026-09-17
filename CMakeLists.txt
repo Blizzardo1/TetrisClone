@@ -20,6 +20,8 @@ set(SOURCES
     src/input_handler.h
     src/timer.c
     src/timer.h
+    src/color.c
+    src/color.h
 )
 
 # Define the executable

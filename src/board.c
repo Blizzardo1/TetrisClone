@@ -3,7 +3,40 @@
 
 TTF_Font *font = NULL;
 
-void board_init(void) {
+int board_width;
+int board_height;
+SDL_Point board_loc;
+
+char board[BOARD_HEIGHT][BOARD_WIDTH];
+
+char (*get_board())[BOARD_WIDTH] {
+    return board;
+}
+
+void board_set_size(int win_w, int win_h, int tetromino_block_size) {
+    board_width = BOARD_WIDTH * tetromino_block_size;
+    board_height = BOARD_HEIGHT * tetromino_block_size;
+    board_loc.x = (win_w / 2) - (board_width / 2);
+    board_loc.y = (win_h / 2) - (board_height / 2);
+}
+
+void board_clear() {
+    for(int y = 0; y < 4; y++) {
+        for(int x = 0; x < 4; x++) {
+            board[y][x] = ' ';
+        }
+    }
+}
+
+int* get_board_height() {
+    return &board_height;
+}
+
+int* get_board_width() {
+    return &board_width;
+}
+
+void board_init() {
     board_load_font("JetBrainsMonoNerdFontPropo-Medium.ttf", 16);
     if (!font) {
         SDL_Log("Failed to load font: %s", SDL_GetError());
@@ -14,21 +47,22 @@ void board_end(void) {
     TTF_CloseFont(font);
 }
 
-void board_draw(SDL_Renderer *renderer, int x, int y, int width, int height) {
+void board_draw(int x, int y, int width, int height) {
     SDL_Color outer = {0xC0, 0xC0, 0xC0, 0xFF}; // 0xC0C0C0FF
     SDL_Color inner = {0xA0, 0xA0, 0xA0, 0xFF}; // 0xA0A0A0FF
-    board_draw_rect(renderer, x, y, width, height, outer);
-    board_draw_rect(renderer, x + 1, y + 1, width - 2, height - 2, inner);
+    board_draw_rect(x, y, width, height, outer);
+    board_draw_rect(x + 1, y + 1, width - 2, height - 2, inner);
 }
 
-void board_draw_plane(SDL_Renderer *renderer, SDL_Color color) {
+void board_draw_plane(SDL_Color color) {
+    SDL_Renderer *renderer = get_renderer();
     SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
     SDL_RenderClear(renderer);
     // Additional drawing logic for the plane can be added here
     // TODO: Maybe add a texture or some other visual representation for the plane
 }
 
-void board_draw_text(SDL_Renderer *renderer, const char *text, int x, int y, int fontSize, SDL_Color color) {
+void board_draw_text(const char *text, int x, int y, int fontSize, SDL_Color color) {
     if (!font) {
         SDL_Log("Invalid font");
         return;
@@ -36,6 +70,13 @@ void board_draw_text(SDL_Renderer *renderer, const char *text, int x, int y, int
 
     int tmpsz = TTF_GetFontSize(font);
     TTF_SetFontSize(font, fontSize);
+
+    SDL_Renderer *renderer = get_renderer();
+
+    if(!renderer) {
+        LOG_RENDER();
+        return;
+    }
 
     SDL_Surface *surface = TTF_RenderText_Blended(font, text, strlen(text), color);
     if (!surface) {
@@ -58,8 +99,9 @@ void board_draw_text(SDL_Renderer *renderer, const char *text, int x, int y, int
     TTF_SetFontSize(font, tmpsz);
 }
 
-void board_draw_rect(SDL_Renderer *renderer, int x, int y, int width, int height, SDL_Color color) {
-    if (!renderer) {
+void board_draw_rect(int x, int y, int width, int height, SDL_Color color) {
+    SDL_Renderer *renderer = get_renderer();
+    if(!renderer) {
         LOG_RENDER();
         return;
     }
@@ -68,17 +110,20 @@ void board_draw_rect(SDL_Renderer *renderer, int x, int y, int width, int height
     SDL_RenderRect(renderer, &frect);
 }
 
-void board_fill_rect(SDL_Renderer *renderer, int x, int y, int width, int height, SDL_Color color) {
+void board_fill_rect(int x, int y, int width, int height, SDL_Color color) {
+    SDL_Renderer *renderer = get_renderer();
     if(!renderer) {
         LOG_RENDER();
         return;
     }
+
     SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
     SDL_FRect frect = {x, y, width, height};
     SDL_RenderFillRect(renderer, &frect);
 }
 
-void board_draw_line(SDL_Renderer *renderer, int x1, int y1, int x2, int y2, SDL_Color color) {
+void board_draw_line(int x1, int y1, int x2, int y2, SDL_Color color) {
+    SDL_Renderer *renderer = get_renderer();
     if(!renderer) {
         LOG_RENDER();
         return;

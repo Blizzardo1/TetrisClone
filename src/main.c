@@ -36,11 +36,9 @@ int SDLCALL loop(void *data) {
     SDL_Event event;
     while(tetris_get_state()) {
         SDL_PollEvent(&event);
-        if(event.type == SDL_EVENT_POLL_SENTINEL) {
-            SDL_Delay(10);
-        }
         draw();
         update(&event);
+        SDL_Delay(18);
     }
 
     SDL_DestroyRenderer(renderer);
