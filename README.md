@@ -5,18 +5,21 @@ A Tetris clone written in C using SDL3, SDL3_image, and SDL3_ttf.
 ## Status
 
 ### Done
+
 - Window and renderer setup with resizable window, viewport locked to a 16:9 aspect ratio on resize
 - All seven tetromino shapes (J, L, I, O, S, Z, T) defined with their standard colors
 - Random piece generation
 - Piece movement (left/right/soft drop) and rotation
-- Hard drop (drops the piece to the lowest available row)
 - Tetromino rendering with per-cell fill and outline
-- Next-piece preview panel
+- Next-piece preview panel sans panel
 - Board border rendering
 - Font loading and on-screen text rendering (JetBrains Mono Nerd Font)
-- Verbose SDL event logging for input/window/mouse events
-
+- Verbose SDL event logging for input/window/keyboard events
+- RNG seed implemented.
+- 
 ### Not done
+
+- Hard drop (drops the piece to the lowest available row)
 - Pieces never actually lock into the board — nothing currently calls the lock function after a piece lands
 - Collision bounds are inconsistent: the board width is reused both as a column count and as a pixel width, so collision checks break after any window resize
 - Board clearing only wipes a 4x4 area instead of the full board
@@ -24,10 +27,10 @@ A Tetris clone written in C using SDL3, SDL3_image, and SDL3_ttf.
 - Line clearing and scoring
 - Game-over detection
 - Level/speed progression
-- RNG isn't seeded (the seeding function exists but is never called), so the piece sequence is the same on every run
 - Sound/music
 
 ### Planned
+
 - Move tetromino-specific logic out of `tetris.c` and into `piece.c`/`piece.h` (currently empty placeholders)
 - Split `handle_input` into the individual `handle_hard_drop`, `handle_soft_drop`, `handle_hold`, etc. functions already declared in `input_handler.h`
 
