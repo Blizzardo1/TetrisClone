@@ -47,17 +47,23 @@ find_package(SDL3_ttf REQUIRED CONFIG)
 
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
-    pthread
     SDL3::SDL3
     SDL3_image::SDL3_image
     SDL3_ttf::SDL3_ttf
 )
 # Compiler flags
-target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra)
+target_compile_options(${PROJECT_NAME} PRIVATE
+    $<$<CONFIG:Debug>:-Wall -Wextra -Wpedantic -fsanitize=address,undefined -march=native>
+    $<$<CONFIG:Release>:-O3 -march=native>
+)
+
+target_link_options(${PROJECT_NAME} PRIVATE
+    $<$<CONFIG:Debug>:-fsanitize=address,undefined>
+)
 
 configure_file(JetBrainsMonoNerdFontPropo-Medium.ttf . COPYONLY)
 
 # Build type (Release/Debug)
-if (NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE Debug)
-endif ()
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+    set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type" FORCE)
+endif()

@@ -23,8 +23,8 @@ void tetris_lock_tetromino(char (*board)[BOARD_WIDTH], int board_width) {
     SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION, "Locking Tetromino %s at XY(%d, %d)",
         current->name, current->x, current->y);
 
-    for(int row = 0; row < BOARD_HEIGHT; row++) {
-        for(int col = 0; col < BOARD_WIDTH; col++) {
+    for(int row = 0; row < 4; row++) {
+        for(int col = 0; col < 4; col++) {
             if(current->block[row][col] != ' ') {
                 board[current->y + row][current->x + col] = current->block[row][col];
             }
