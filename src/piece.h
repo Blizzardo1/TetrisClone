@@ -44,10 +44,11 @@ void piece_init(int board_width, int board_height);
 /**
  * @brief Centers the Tetromino to the top-center of the board.
  *
+ * @param bx the X-Position of the board.
+ * @param by the Y-Position of the board.
  * @param board_width the board width.
- * @param board_height the board height.
  */
-void piece_center_tetromino(int board_width, int board_height);
+void piece_center_tetromino(int bx, int by, int board_width);
 
 /**
  * @brief Copies a Tetromino.
@@ -116,7 +117,7 @@ void piece_rotate(Tetromino *tetromino);
  * @param board_width the board width.
  * @param board_height the board height.
  */
-void piece_spawn(int board_width, int board_height);
+void piece_spawn(int board_width);
 
 /**
  * @brief Draws a Tetromino.

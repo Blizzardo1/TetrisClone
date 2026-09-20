@@ -49,7 +49,12 @@ typedef enum {
     /**
      * @brief The Priority Module.
      */
-    LOG_MODULE_PRIORITY = 8
+    LOG_MODULE_PRIORITY = 8,
+    /**
+     * @brief The Function Module
+     * @remark only captures log_format_message
+     */
+    LOG_MODULE_FUNCTION = 16
 } LogModules;
 
 /**
@@ -57,6 +62,7 @@ typedef enum {
  * @remarks Accepted formats are based on LogModules:
  * $t : Time
  * $d : Date
+ * $f : Function
  * $c : Category
  * $p : Priority
  */

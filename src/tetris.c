@@ -18,7 +18,7 @@ void tetris_set_state(bool state) {
     tetris_running = state;
 }
 
-void tetris_lock_tetromino(char (*board)[BOARD_WIDTH], int board_width, int board_height) {
+void tetris_lock_tetromino(char (*board)[BOARD_WIDTH], int board_width) {
     Tetromino *current = piece_get_current();
     SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION, "Locking Tetromino %s at XY(%d, %d)",
         current->name, current->x, current->y);
@@ -30,7 +30,7 @@ void tetris_lock_tetromino(char (*board)[BOARD_WIDTH], int board_width, int boar
             }
         }
     }
-    piece_spawn(board_width, board_height);
+    piece_spawn(board_width);
 }
 
 void tetris_init(SDL_Window *window, SDL_Renderer *renderer, int ww, int wh) {

@@ -12,9 +12,8 @@
  *
  * @param board the backend board.
  * @param board_width the board width.
- * @param board_height the board height.
  */
-void tetris_lock_tetromino(char (*board)[BOARD_WIDTH], int board_width, int board_height);
+void tetris_lock_tetromino(char (*board)[BOARD_WIDTH], int board_width);
 
 /**
  * @brief Initializes the Tetris Core.

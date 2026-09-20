@@ -30,6 +30,14 @@ void board_clear() {
     }
 }
 
+SDL_Point get_board_location() {
+    return board_loc;
+}
+
+void set_board_location(SDL_Point loc) {
+    board_loc = loc;
+}
+
 int* get_board_height() {
     return &board_height;
 }

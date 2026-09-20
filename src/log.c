@@ -9,16 +9,36 @@ int _current_category;
 bool format_ready;
 
 
+/**
+ * @brief Get the current time.
+ *
+ * @param buf a buffer to store the output.
+ * @param len the max length of the output.
+ */
 static void get_time_str(char *buf, size_t len) {
     time_t now = time(NULL);
     strftime(buf, len, "%H:%M:%S", localtime(&now));
 }
 
+
+/**
+ * @brief Get the current date.
+ *
+ * @param buf a buffer to store the output.
+ * @param len the max length of the output.
+ */
 static void get_date_str(char *buf, size_t len) {
     time_t now = time(NULL);
     strftime(buf, len, "%Y-%m-%d", localtime(&now));
 }
 
+
+/**
+ * @brief Translates a TetrisCategory to string.
+ *
+ * @param category the TetrisCategory to translate.
+ * @return const char* a string representation of TetrisCategory.
+ */
 static const char *custom_category(TetrisCategory category) {
     switch(category) {
         case CATEGORY_TETRIS:   return "TETRIS";
@@ -30,6 +50,12 @@ static const char *custom_category(TetrisCategory category) {
     }
 }
 
+/**
+ * @brief Translates an SDL_LogCategory to string.
+ *
+ * @param category the SDL_LogCategory to translate.
+ * @return const char* a string representation of SDL_LogCategory
+ */
 static const char *category_name(SDL_LogCategory category) {
     switch (category) {
         case SDL_LOG_CATEGORY_APPLICATION:  return "APP";
@@ -58,6 +84,12 @@ static const char *category_name(SDL_LogCategory category) {
     }
 }
 
+/**
+ * @brief Translates an SDL_LogPriority to string.
+ *
+ * @param priority the SDL_LogPriority to translate.
+ * @return const char* a string representation of SDL_LogPriority
+ */
 static const char *priority_name(SDL_LogPriority priority) {
     switch (priority) {
         case SDL_LOG_PRIORITY_TRACE:    return "TRACE";
@@ -99,6 +131,10 @@ int log_format_message(char *buffer, size_t buff_size, SDL_LogCategory category,
                 case 'p':
                     if (_current_format.modules & LOG_MODULE_PRIORITY)
                         snprintf(piece, sizeof(piece), "%s", priority_name(priority));
+                    break;
+                case 'f':
+                    if(_current_format.modules & LOG_MODULE_FUNCTION)
+                        snprintf(piece, sizeof(piece), "%s", __func__);
                     break;
                 default:
                     consumed = 0; /* This is not a recognized token,

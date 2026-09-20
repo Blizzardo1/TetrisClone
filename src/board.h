@@ -16,6 +16,22 @@
  */
 char (*get_board())[BOARD_WIDTH];
 
+
+/**
+ * @brief Get the board's location.
+ *
+ * @return SDL_Point the SDL_Point containing the location of the board.
+ */
+SDL_Point get_board_location();
+
+/**
+ * @brief Set the board's location
+ *
+ * @param loc the SDL_Point containing the new location of the board.
+ */
+void set_board_location(SDL_Point loc);
+
+
 /**
  * @brief Get the board height.
  *

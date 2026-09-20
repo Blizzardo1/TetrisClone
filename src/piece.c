@@ -10,9 +10,9 @@ Tetromino J = {
     .name = "J",
     .block = {
         {N,N,N,N},
-        {N,N,D,N},
-        {N,N,D,N},
-        {N,D,D,N},
+        {N,N,'J',N},
+        {N,N,'J',N},
+        {N,'J','J',N},
     },
     .color = {0,0,255,255} // Blue
 };
@@ -21,9 +21,9 @@ Tetromino L = {
     .name = "L",
     .block = {
         {N,N,N,N},
-        {N,D,N,N},
-        {N,D,N,N},
-        {N,D,D,N},
+        {N,'l',N,N},
+        {N,'l',N,N},
+        {N,'l','l',N},
     },
     .color = {255,162,0,255} // Orange
 };
@@ -31,10 +31,10 @@ Tetromino L = {
 Tetromino I = {
     .name = "I",
     .block = {
-        {N,N,D,N},
-        {N,N,D,N},
-        {N,N,D,N},
-        {N,N,D,N},
+        {N,N,'i',N},
+        {N,N,'i',N},
+        {N,N,'i',N},
+        {N,N,'i',N},
     },
     .color = {0,238,255,255} // Cyan
 };
@@ -44,8 +44,8 @@ Tetromino O = {
     .block = {
         {N,N,N,N},
         {N,N,N,N},
-        {N,D,D,N},
-        {N,D,D,N},
+        {N,'o','o',N},
+        {N,'o','o',N},
     },
     .color = {250,240,0,255} // Yellow
 };
@@ -54,8 +54,8 @@ Tetromino S = {
     .name = "S",
     .block = {
         {N,N,N,N},
-        {N,N,D,D},
-        {N,D,D,N},
+        {N,N,'s','s'},
+        {N,'s','s',N},
         {N,N,N,N},
     },
     .color = {0,255,0,255} // Green
@@ -65,8 +65,8 @@ Tetromino Z = {
     .name = "Z",
     .block = {
         {N,N,N,N},
-        {D,D,N,N},
-        {N,D,D,N},
+        {'z','z',N,N},
+        {N,'z','z',N},
         {N,N,N,N},
     },
     .color = {255,0,0,255} // Red
@@ -76,8 +76,8 @@ Tetromino T = {
     .name = "T",
     .block = {
         {N,N,N,N},
-        {N,N,D,N},
-        {N,D,D,D},
+        {N,N,'t',N},
+        {N,'t','t','t'},
         {N,N,N,N},
     },
     .color = {131,0,212,255} // Purple
@@ -88,17 +88,15 @@ Tetromino *current;
 Tetromino *next;
 
 void piece_init(int board_width, int board_height) {
-    SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION, "Initializing Piece");
+    SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION, "Initializing Piece: BW: %d, BH: %d", board_width, board_height);
     next = piece_get_random();
-    piece_spawn(board_width, board_height);
+    piece_spawn(board_width);
 }
 
-void piece_center_tetromino(int board_width, int board_height) {
-    // SPAWN_CENTER_X * ((board_width / 2))
-    // (1920/2) * ()
-    current->x = SPAWN_CENTER_X * ((board_width / 2) * (TETROMINO_BLOCK_SIZE / 2));
-    current->y = SPAWN_CENTER_Y * ((board_height  / 2) * (TETROMINO_BLOCK_SIZE / 2));
-    SDL_Log("%s spawned: BW=%d, BH=%d, XY (%d, %d)", current->name, board_width, board_height, current->x, current->y);
+void piece_center_tetromino(int bx, int by, int board_width) {
+    current->x = SPAWN_CENTER_X * (board_width / 2);
+    current->y = SPAWN_CENTER_Y * (TETROMINO_BLOCK_SIZE / 2);
+    SDL_Log("%s spawned: BX=%d, BY=%d, BW=%d, XY (%d, %d)", current->name, bx, by, board_width, current->x, current->y);
 }
 
 Tetromino* piece_tetromino_copy(Tetromino *tetromino) {
@@ -180,9 +178,10 @@ void piece_rotate(Tetromino *tetromino) {
     memcpy(tetromino->block, temp, sizeof(tetromino->block));
 }
 
-void piece_spawn(int board_width, int board_height) {
+void piece_spawn(int board_width) {
     current = next;
-    piece_center_tetromino(board_width, board_height);
+    SDL_Point board_loc = get_board_location();
+    piece_center_tetromino(board_loc.x, board_loc.y, board_width);
     next = piece_get_random();
 }
 
