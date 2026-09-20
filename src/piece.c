@@ -7,6 +7,7 @@
 #define N ' '
 
 Tetromino J = {
+    .name = "J",
     .block = {
         {N,N,N,N},
         {N,N,D,N},
@@ -17,6 +18,7 @@ Tetromino J = {
 };
 
 Tetromino L = {
+    .name = "L",
     .block = {
         {N,N,N,N},
         {N,D,N,N},
@@ -27,6 +29,7 @@ Tetromino L = {
 };
 
 Tetromino I = {
+    .name = "I",
     .block = {
         {N,N,D,N},
         {N,N,D,N},
@@ -37,6 +40,7 @@ Tetromino I = {
 };
 
 Tetromino O = {
+    .name = "O",
     .block = {
         {N,N,N,N},
         {N,N,N,N},
@@ -47,6 +51,7 @@ Tetromino O = {
 };
 
 Tetromino S = {
+    .name = "S",
     .block = {
         {N,N,N,N},
         {N,N,D,D},
@@ -57,6 +62,7 @@ Tetromino S = {
 };
 
 Tetromino Z = {
+    .name = "Z",
     .block = {
         {N,N,N,N},
         {D,D,N,N},
@@ -67,6 +73,7 @@ Tetromino Z = {
 };
 
 Tetromino T = {
+    .name = "T",
     .block = {
         {N,N,N,N},
         {N,N,D,N},
@@ -81,13 +88,17 @@ Tetromino *current;
 Tetromino *next;
 
 void piece_init(int board_width, int board_height) {
+    SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION, "Initializing Piece");
     next = piece_get_random();
     piece_spawn(board_width, board_height);
 }
 
 void piece_center_tetromino(int board_width, int board_height) {
-    current->x = SPAWN_CENTER_X * ((board_width / 2) *  (TETROMINO_BLOCK_SIZE / 2));
+    // SPAWN_CENTER_X * ((board_width / 2))
+    // (1920/2) * ()
+    current->x = SPAWN_CENTER_X * ((board_width / 2) * (TETROMINO_BLOCK_SIZE / 2));
     current->y = SPAWN_CENTER_Y * ((board_height  / 2) * (TETROMINO_BLOCK_SIZE / 2));
+    SDL_Log("%s spawned: BW=%d, BH=%d, XY (%d, %d)", current->name, board_width, board_height, current->x, current->y);
 }
 
 Tetromino* piece_tetromino_copy(Tetromino *tetromino) {

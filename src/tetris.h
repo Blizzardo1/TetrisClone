@@ -4,23 +4,66 @@
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
 #include "board.h"
-#include "piece.h"
-#include "color.h"
 
 #define ASPECT_RATIO 16.f / 9.f // Respect 16:9
 
-void tetris_clear_board(char (*board)[BOARD_WIDTH]);
-bool tetris_can_move(Tetromino *tetromino, int dx, int dy);
+/**
+ * @brief Locks the Tetromino in place.
+ *
+ * @param board the backend board.
+ * @param board_width the board width.
+ * @param board_height the board height.
+ */
 void tetris_lock_tetromino(char (*board)[BOARD_WIDTH], int board_width, int board_height);
+
+/**
+ * @brief Initializes the Tetris Core.
+ *
+ * @param window the SDL_Window to acquire.
+ * @param renderer the SDL_Renderer to acquire.
+ * @param ww the window width.
+ * @param wh the window height.
+ */
 void tetris_init(SDL_Window *window, SDL_Renderer *renderer, int ww, int wh);
-void tetris_rotate(Tetromino *tetromino);
-void tetris_move(Tetromino *tetromino, int px, int py);
+
+/**
+ * @brief Updates the viewport of what's shown to the screen.
+ *
+ * @param win_w the window width.
+ * @param win_h the window height.
+ */
 void update_viewport(int win_w, int win_h);
+
+/**
+ * @brief Draws the screen
+ */
 void tetris_draw(void);
-void tetris_draw_tetromino(Tetromino *tetromino, int px, int py);
+
+/**
+ * @brief Update function called every frame.
+ *
+ * @param event a pointer to the polled SDL_Event
+ */
 void tetris_update(SDL_Event *event);
+
+/**
+ * @brief Will stop the game.
+ */
 void tetris_end();
+
+/**
+ * @brief Gets the current running state of the game.
+ *
+ * @return true game is still running.
+ * @return false game is no longer running.
+ */
 bool tetris_get_state();
+
+/**
+ * @brief Sets the new running state of the game.
+ *
+ * @param state true to run, false to end.
+ */
 void tetris_set_state(bool state);
 
 

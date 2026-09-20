@@ -41,10 +41,10 @@ int SDLCALL timer_update(void *arg) {
     lasttime = currenttime;
     locktime += deltatime;
     if(locktime > LOCK_DELAY) {
-        int *width = get_board_width();
-        int *height = get_board_height();
-        char (*board)[BOARD_WIDTH] = get_board();
-        piece_move(piece_get_current(), 0, 1, board, *width, *height);
+        // int *width = get_board_width();
+        // int *height = get_board_height();
+        // char (*board)[BOARD_WIDTH] = get_board();
+        // piece_move(piece_get_current(), 0, 1, board, *width, *height);
         locktime = 0;
     }
     return 0;

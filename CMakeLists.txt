@@ -22,6 +22,8 @@ set(SOURCES
     src/timer.h
     src/color.c
     src/color.h
+    src/log.c
+    src/log.h
 )
 
 # Define the executable

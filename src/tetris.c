@@ -2,6 +2,7 @@
 #include "input_handler.h"
 #include "tetris.h"
 #include "timer.h"
+#include "color.h"
 
 int window_width;
 int window_height;
@@ -19,6 +20,9 @@ void tetris_set_state(bool state) {
 
 void tetris_lock_tetromino(char (*board)[BOARD_WIDTH], int board_width, int board_height) {
     Tetromino *current = piece_get_current();
+    SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION, "Locking Tetromino %s at XY(%d, %d)",
+        current->name, current->x, current->y);
+
     for(int row = 0; row < BOARD_HEIGHT; row++) {
         for(int col = 0; col < BOARD_WIDTH; col++) {
             if(current->block[row][col] != ' ') {
@@ -30,6 +34,7 @@ void tetris_lock_tetromino(char (*board)[BOARD_WIDTH], int board_width, int boar
 }
 
 void tetris_init(SDL_Window *window, SDL_Renderer *renderer, int ww, int wh) {
+    SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION, "Initializing Tetris");
     window_width = ww;
     window_height = wh;
     timer_init();
@@ -43,7 +48,7 @@ void tetris_init(SDL_Window *window, SDL_Renderer *renderer, int ww, int wh) {
 }
 
 void tetris_end() {
-    SDL_Log("Ending Game");
+    SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION, "Ending Game");
     tetris_set_state(false);
     board_end();
 }

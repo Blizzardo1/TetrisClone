@@ -14,8 +14,10 @@ char (*get_board())[BOARD_WIDTH] {
 }
 
 void board_set_size(int win_w, int win_h, int tetromino_block_size) {
+    // Should be 320x640
     board_width = BOARD_WIDTH * tetromino_block_size;
     board_height = BOARD_HEIGHT * tetromino_block_size;
+    // Top-Left should be { .x = 800, .y = 220, .w = 320, .h = 640};
     board_loc.x = (win_w / 2) - (board_width / 2);
     board_loc.y = (win_h / 2) - (board_height / 2);
 }
@@ -37,6 +39,7 @@ int* get_board_width() {
 }
 
 void board_init() {
+    SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION, "Initializing Board");
     board_load_font("JetBrainsMonoNerdFontPropo-Medium.ttf", 16);
     if (!font) {
         SDL_Log("Failed to load font: %s", SDL_GetError());
