@@ -3,7 +3,6 @@
 
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
-#include "color.h"
 
 #define BOARD_WIDTH 10
 #define BOARD_HEIGHT 20
@@ -16,6 +15,13 @@
  */
 char (*get_board())[BOARD_WIDTH];
 
+
+/**
+ * @brief Clears a line.
+ *
+ * @param row the row where to clear the line.
+ */
+void board_clear_line(int row);
 
 /**
  * @brief Get the board's location.
@@ -48,6 +54,7 @@ int* get_board_width();
 
 /**
  * @brief Sets the new size of the board.
+ * @remark This function calculates where the board is supposed to be, which is centered on the screen.
  *
  * @param win_w the window width.
  * @param win_h the window height.
@@ -74,12 +81,9 @@ void board_clear(void);
 /**
  * @brief Draws the board.
  *
- * @param x the X-Position.
- * @param y the Y-Position.
- * @param width the width of the board.
- * @param height the height of the board.
+ * @param block_size the size of each block
  */
-void board_draw(int x, int y, int width, int height);
+void board_draw(int block_size);
 
 /**
  * @brief Draws a backplane to the screen.

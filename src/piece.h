@@ -8,11 +8,34 @@
 #define SPAWN_CENTER_Y 2
 #define TETROMINO_BLOCK_SIZE 32
 
+/**
+ * @brief A Tetromino.
+ */
 typedef struct {
+    /**
+     * @brief The name of the Tetromino
+     */
     char *name;
+
+    /**
+     * @brief A 2-D Array representing the block
+     */
     char block[4][4];
+
+    /**
+     * @brief The color of the Tetromino Block.
+     */
     SDL_Color color;
-    int x, y;
+
+    /**
+     * @brief The X-Position relative to the board.
+     */
+    int x;
+
+    /**
+     * @brief The Y-Position relative to the board.
+     */
+    int y;
 } Tetromino;
 
 
@@ -127,5 +150,14 @@ void piece_spawn(int board_width);
  * @param py the Y-Position to draw.
  */
 void piece_draw(Tetromino *tetromino, int px, int py);
+
+/**
+ * @brief Updates where the Tetromino is on the board.
+ *
+ * @param tetromino the Tetromino.
+ * @param cx the X-Position where the Tetromino is on the board.
+ * @param cy the Y-Position where the Tetromino is on the board.
+ */
+void piece_update(Tetromino *tetromino, int cx, int cy);
 
 #endif

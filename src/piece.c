@@ -3,16 +3,13 @@
 #include "timer.h"
 #include "piece.h"
 
-#define D '.'
-#define N ' '
-
 Tetromino J = {
     .name = "J",
     .block = {
-        {N,N,N,N},
-        {N,N,'J',N},
-        {N,N,'J',N},
-        {N,'J','J',N},
+        {' ',' ',' ',' '},
+        {' ',' ','J',' '},
+        {' ',' ','J',' '},
+        {' ','J','J',' '},
     },
     .color = {0,0,255,255} // Blue
 };
@@ -20,10 +17,10 @@ Tetromino J = {
 Tetromino L = {
     .name = "L",
     .block = {
-        {N,N,N,N},
-        {N,'l',N,N},
-        {N,'l',N,N},
-        {N,'l','l',N},
+        {' ',' ',' ',' '},
+        {' ','l',' ',' '},
+        {' ','l',' ',' '},
+        {' ','l','l',' '},
     },
     .color = {255,162,0,255} // Orange
 };
@@ -31,10 +28,10 @@ Tetromino L = {
 Tetromino I = {
     .name = "I",
     .block = {
-        {N,N,'i',N},
-        {N,N,'i',N},
-        {N,N,'i',N},
-        {N,N,'i',N},
+        {' ',' ','i',' '},
+        {' ',' ','i',' '},
+        {' ',' ','i',' '},
+        {' ',' ','i',' '},
     },
     .color = {0,238,255,255} // Cyan
 };
@@ -42,10 +39,10 @@ Tetromino I = {
 Tetromino O = {
     .name = "O",
     .block = {
-        {N,N,N,N},
-        {N,N,N,N},
-        {N,'o','o',N},
-        {N,'o','o',N},
+        {' ',' ',' ',' '},
+        {' ',' ',' ',' '},
+        {' ','o','o',' '},
+        {' ','o','o',' '},
     },
     .color = {250,240,0,255} // Yellow
 };
@@ -53,10 +50,10 @@ Tetromino O = {
 Tetromino S = {
     .name = "S",
     .block = {
-        {N,N,N,N},
-        {N,N,'s','s'},
-        {N,'s','s',N},
-        {N,N,N,N},
+        {' ',' ',' ',' '},
+        {' ',' ','s','s'},
+        {' ','s','s',' '},
+        {' ',' ',' ',' '},
     },
     .color = {0,255,0,255} // Green
 };
@@ -64,10 +61,10 @@ Tetromino S = {
 Tetromino Z = {
     .name = "Z",
     .block = {
-        {N,N,N,N},
-        {'z','z',N,N},
-        {N,'z','z',N},
-        {N,N,N,N},
+        {' ',' ',' ',' '},
+        {'z','z',' ',' '},
+        {' ','z','z',' '},
+        {' ',' ',' ',' '},
     },
     .color = {255,0,0,255} // Red
 };
@@ -75,10 +72,10 @@ Tetromino Z = {
 Tetromino T = {
     .name = "T",
     .block = {
-        {N,N,N,N},
-        {N,N,'t',N},
-        {N,'t','t','t'},
-        {N,N,N,N},
+        {' ',' ',' ',' '},
+        {' ',' ','t',' '},
+        {' ','t','t','t'},
+        {' ',' ',' ',' '},
     },
     .color = {131,0,212,255} // Purple
 };
@@ -94,8 +91,8 @@ void piece_init(int board_width, int board_height) {
 }
 
 void piece_center_tetromino(int bx, int by, int board_width) {
-    current->x = SPAWN_CENTER_X * (board_width / 2);
-    current->y = SPAWN_CENTER_Y * (TETROMINO_BLOCK_SIZE / 2);
+    current->x = SPAWN_CENTER_X;
+    current->y = SPAWN_CENTER_Y;
     SDL_Log("%s spawned: BX=%d, BY=%d, BW=%d, XY (%d, %d)", current->name, bx, by, board_width, current->x, current->y);
 }
 
@@ -135,7 +132,7 @@ bool piece_can_move(Tetromino *tetromino, int dx, int dy, char (*board)[BOARD_WI
 
     for(int row = 0; row < board_height; row++) {
         for (int col = 0; col < board_width; col++) {
-            if(tetromino->block[row][col] == N) {
+            if(tetromino->block[row][col] == ' ') {
                 continue;
             }
             int bx = nX + col;
@@ -146,7 +143,7 @@ bool piece_can_move(Tetromino *tetromino, int dx, int dy, char (*board)[BOARD_WI
             if(by < 0) {
                 continue;
             }
-            if(board[by][bx] != N) {
+            if(board[by][bx] != ' ') {
                 return false;
             }
         }
@@ -187,14 +184,15 @@ void piece_spawn(int board_width) {
 
 void piece_draw(Tetromino *tetromino, int px, int py) {
     SDL_Renderer *renderer = get_renderer();
+    SDL_Point board_loc = get_board_location();
     for(int y = 0; y < 4; y++) {
         for(int x = 0; x < 4; x++) {
             if (tetromino->block[y][x] == ' ') {
                 continue;
             }
             SDL_FRect rect = {
-                px + (x * TETROMINO_BLOCK_SIZE),
-                py + (y * TETROMINO_BLOCK_SIZE),
+                board_loc.x + (px + (x * TETROMINO_BLOCK_SIZE)),
+                board_loc.y + (py + (y * TETROMINO_BLOCK_SIZE)),
                 TETROMINO_BLOCK_SIZE,
                 TETROMINO_BLOCK_SIZE
             };
@@ -202,6 +200,15 @@ void piece_draw(Tetromino *tetromino, int px, int py) {
             SDL_RenderFillRect(renderer, &rect);
             set_draw_color(BLACK);
             SDL_RenderRect(renderer, &rect);
+        }
+    }
+}
+
+void piece_update(Tetromino *tetromino, int cx, int cy) {
+    char (*board)[BOARD_WIDTH] = get_board();
+    for(int y = 0; y < 4; y++) {
+        for(int x = 0; x < 4; x++) {
+            board[cy + y][cx + x] = tetromino->block[y][x];
         }
     }
 }

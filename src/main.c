@@ -1,6 +1,7 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_thread.h>
 
+#include "color.h"
 #include "log.h"
 #include "tetris.h"
 
@@ -63,6 +64,7 @@ int SDLCALL loop(void *data) {
         return 1;
     }
 
+    color_init(window, renderer);
     // Initialize the game.
     tetris_init(window, renderer, INIT_SCREEN_WIDTH, INIT_SCREEN_HEIGHT);
     SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION, "Game Loop started.");

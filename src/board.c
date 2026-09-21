@@ -1,5 +1,7 @@
-#include "board.h"
+#include <stdlib.h>
 #include <SDL3_ttf/SDL_ttf.h>
+#include "board.h"
+#include "color.h"
 
 TTF_Font *font = NULL;
 
@@ -8,6 +10,32 @@ int board_height;
 SDL_Point board_loc;
 
 char board[BOARD_HEIGHT][BOARD_WIDTH];
+
+/**
+ * @brief Internal function that is used to repeat characters.
+ *
+ * @param chr the character to repeat.
+ * @param repeat number of times to repeat.
+ * @return char* a string representing the string.
+ */
+char* repeat_str(const char chr, const int repeat) {
+    // I don't know if I want to make this available across the program.
+    // Unsure how useful it will be in other places. Created for checking against row clears.
+    if(repeat < 0) {
+        return NULL;
+    }
+
+    char *str = (char *)malloc((size_t)repeat + 1);
+
+    if(!str) {
+        return NULL;
+    }
+
+    memset(str, chr, (size_t)repeat);
+    str[repeat] = '\0';
+
+    return str;
+}
 
 char (*get_board())[BOARD_WIDTH] {
     return board;
@@ -23,11 +51,26 @@ void board_set_size(int win_w, int win_h, int tetromino_block_size) {
 }
 
 void board_clear() {
-    for(int y = 0; y < 4; y++) {
-        for(int x = 0; x < 4; x++) {
-            board[y][x] = ' ';
-        }
+    // Easy enough call to blank out the entire board.
+    memset(board, ' ', sizeof(board));
+}
+
+void board_clear_line(int row) {
+    if(row < 0 || row >= BOARD_HEIGHT) {
+        return;
     }
+
+    for(int col = 0; col < BOARD_WIDTH; col++) {
+        board[row][col] = ' ';
+    }
+
+    // Shift remaining blocks down if any
+    for(int r = row; r > 0; --r) {
+        memcpy(board[r], board[r - 1], sizeof(board[r]));
+    }
+
+    // Blanks out the top row.
+    memset(board[0], ' ', sizeof(board[0]));
 }
 
 SDL_Point get_board_location() {
@@ -52,22 +95,37 @@ void board_init() {
     if (!font) {
         SDL_Log("Failed to load font: %s", SDL_GetError());
     }
+    board_clear();
 }
 
 void board_end(void) {
     TTF_CloseFont(font);
 }
 
-void board_draw(int x, int y, int width, int height) {
+void board_draw(int block_size) {
+    SDL_Renderer *renderer = get_renderer();
     SDL_Color outer = {0xC0, 0xC0, 0xC0, 0xFF}; // 0xC0C0C0FF
     SDL_Color inner = {0xA0, 0xA0, 0xA0, 0xFF}; // 0xA0A0A0FF
-    board_draw_rect(x, y, width, height, outer);
-    board_draw_rect(x + 1, y + 1, width - 2, height - 2, inner);
+    board_draw_rect(board_loc.x, board_loc.y, board_width, board_height, outer);
+    board_draw_rect(board_loc.x + 1, board_loc.y + 1, board_width - 2, board_height - 2, inner);
+    for (int r = 0; r < BOARD_HEIGHT; r++) {
+        for (int c = 0; c < BOARD_WIDTH; c++) {
+            if (board[r][c] == ' ') continue;
+            SDL_FRect cell = {
+                board_loc.x + c * block_size,
+                board_loc.y + r * block_size,
+                block_size,
+                block_size
+            };
+            set_draw_color(WHITE);
+            SDL_RenderFillRect(renderer, &cell);
+        }
+    }
 }
 
 void board_draw_plane(SDL_Color color) {
     SDL_Renderer *renderer = get_renderer();
-    SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+    set_draw_color(color);
     SDL_RenderClear(renderer);
     // Additional drawing logic for the plane can be added here
     // TODO: Maybe add a texture or some other visual representation for the plane
@@ -116,7 +174,7 @@ void board_draw_rect(int x, int y, int width, int height, SDL_Color color) {
         LOG_RENDER();
         return;
     }
-    SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+    set_draw_color(color);
     SDL_FRect frect = {x, y, width, height};
     SDL_RenderRect(renderer, &frect);
 }
@@ -128,7 +186,7 @@ void board_fill_rect(int x, int y, int width, int height, SDL_Color color) {
         return;
     }
 
-    SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+    set_draw_color(color);
     SDL_FRect frect = {x, y, width, height};
     SDL_RenderFillRect(renderer, &frect);
 }
@@ -140,7 +198,7 @@ void board_draw_line(int x1, int y1, int x2, int y2, SDL_Color color) {
         return;
     }
 
-    SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+    set_draw_color(color);
     SDL_RenderLine(renderer, x1, y1, x2, y2);
 }
 

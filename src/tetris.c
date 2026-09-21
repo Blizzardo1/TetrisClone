@@ -39,7 +39,6 @@ void tetris_init(SDL_Window *window, SDL_Renderer *renderer, int ww, int wh) {
     window_height = wh;
     timer_init();
     TTF_Init();
-    color_init(window, renderer);
     board_init();
     update_viewport(ww, wh);
     piece_init(*get_board_width(), *get_board_height());
@@ -97,7 +96,7 @@ void tetris_draw(void) {
     set_draw_color(BLACK);
     SDL_RenderClear(renderer);
     board_draw_plane(BLACK);
-    board_draw((window_width / 2) - (*board_width / 2), (window_height / 2) - (*board_height / 2), *board_width, *board_height);
+    board_draw(TETROMINO_BLOCK_SIZE);
     board_draw_text("Tetris", 10, 10, 16, WHITE);
     board_draw_text("Next", 1800, 60, 16, LIGHTGRAY);
     if(current) {
@@ -112,6 +111,8 @@ void tetris_draw(void) {
 
 void tetris_update(SDL_Event *event) {
     SDL_Thread *thread = SDL_CreateThread(timer_update, "MoveUpdate", (void *)NULL);
+    Tetromino *piece = piece_get_current();
+    piece_update(piece, piece->x, piece->y);
     switch(event->type) {
         case SDL_EVENT_KEY_DOWN:
             SDL_Log("Key pressed: %s", SDL_GetKeyName(event->key.key));
