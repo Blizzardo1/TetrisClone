@@ -3,6 +3,8 @@
 #include "tetris.h"
 #include "timer.h"
 #include "color.h"
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_thread.h>
 
 int window_width;
 int window_height;
@@ -108,9 +110,32 @@ void tetris_draw(void) {
     SDL_RenderPresent(renderer);
 }
 
+int SDLCALL handle_mouse(void *arg) {
+    SDL_Event *event = (SDL_Event *)arg;
+    if(event->motion.type != SDL_EVENT_MOUSE_MOTION) {
+        return 255; // We're not caring if it's not a mouse motion
+    }
+
+    Uint64 lag_ms = (SDL_GetTicksNS() - event->motion.timestamp) / 1000000;
+    int pending = SDL_PeepEvents(NULL,
+        0, SDL_PEEKEVENT,
+         SDL_EVENT_MOUSE_MOTION, SDL_EVENT_MOUSE_MOTION);
+
+    SDL_FPoint mouse_loc = {.x = event->motion.x, .y = event->motion.y};
+    SDL_FPoint mouse_rel = {.x = event->motion.xrel, .y = event->motion.yrel};
+
+    SDL_Log("Mouse: Absolute (%f, %f); Relative (%f, %f); Lag: %llu ms, Pending: %d",
+        mouse_loc.x, mouse_loc.y,
+        mouse_rel.x, mouse_rel.y,
+        (unsigned long long)lag_ms, pending
+    );
+    return 0;
+}
 
 void tetris_update(SDL_Event *event) {
     SDL_Thread *thread = SDL_CreateThread(timer_update, "MoveUpdate", (void *)NULL);
+    SDL_Thread *mouse_thread = SDL_CreateThread(handle_mouse, "HandleMouse", (void *)event);
+    int mouse_result = 0;
     Tetromino *piece = piece_get_current();
     piece_update(piece, piece->x, piece->y);
     switch(event->type) {
@@ -130,6 +155,8 @@ void tetris_update(SDL_Event *event) {
             break;
         case SDL_EVENT_MOUSE_MOTION:
             // SDL_Log("Mouse moved to (%.2f, %.2f)", event->motion.x, event->motion.y);
+            SDL_WaitThread(mouse_thread, &mouse_result);
+
             break;
         case SDL_EVENT_MOUSE_BUTTON_DOWN:
             SDL_Log("Mouse button %d pressed at (%.2f, %.2f)", event->button.button, event->button.x, event->button.y);

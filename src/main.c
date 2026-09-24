@@ -71,9 +71,10 @@ int SDLCALL loop(void *data) {
 
     SDL_Event event;
     while(tetris_get_state()) {
-        SDL_PollEvent(&event);
+        while(SDL_PollEvent(&event)) {
+            update(&event);
+        }
         draw();
-        update(&event);
         SDL_Delay(18);
     }
 
