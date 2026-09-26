@@ -168,7 +168,7 @@ void SDLCALL log_output(void *userdata, int category, SDL_LogPriority priority, 
     printf("%s %s\n", format, message);
 }
 
-void log_init() {
+void log_init(void) {
     SDL_SetLogOutputFunction(log_output, NULL);
     format_ready = true;
 }

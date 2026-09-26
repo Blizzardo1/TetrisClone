@@ -24,6 +24,8 @@ set(SOURCES
     src/color.h
     src/log.c
     src/log.h
+    src/menu.c
+    src/menu.h
 )
 
 # Define the executable

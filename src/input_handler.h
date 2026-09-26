@@ -17,12 +17,6 @@
 #define RIGHT SDLK_RIGHT
 #define MENU SDLK_ESCAPE
 
-
-/**
- * @brief Initializes the Input Handler.
- */
-void handle_init(void);
-
 /**
  * @brief Handles each key press.
  *
@@ -66,5 +60,18 @@ void handle_right(void);
  * @brief Shows a Menu.
  */
 void handle_menu(void);
+
+/**
+ * @brief Force Disable the Menu.
+ */
+void handle_disable_menu(void);
+
+/**
+ * @brief Gets whether or not the menu is active.
+ *
+ * @return true menu is shown.
+ * @return false menu is hidden.
+ */
+bool handle_get_menu_state(void);
 
 #endif

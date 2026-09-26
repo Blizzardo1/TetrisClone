@@ -73,7 +73,7 @@ void board_clear_line(int row) {
     memset(board[0], ' ', sizeof(board[0]));
 }
 
-SDL_Point get_board_location() {
+SDL_Point get_board_location(void) {
     return board_loc;
 }
 
@@ -81,11 +81,11 @@ void set_board_location(SDL_Point loc) {
     board_loc = loc;
 }
 
-int* get_board_height() {
+int* get_board_height(void) {
     return &board_height;
 }
 
-int* get_board_width() {
+int* get_board_width(void) {
     return &board_width;
 }
 
@@ -202,11 +202,25 @@ void board_draw_line(int x1, int y1, int x2, int y2, SDL_Color color) {
     SDL_RenderLine(renderer, x1, y1, x2, y2);
 }
 
-void board_load_font(const char *fontPath, float fontSize) {
-    font = TTF_OpenFont(fontPath, fontSize);
+void board_load_font(const char *fontPath, float font_size) {
+    font = TTF_OpenFont(fontPath, font_size);
     if(!font) {
         SDL_LogError(SDL_LOG_CATEGORY_ERROR, "Failed to load font %s", fontPath);
     }
+}
+
+Size* board_measure_string(char *text, int font_size) {
+    Size* size = (Size*)malloc(sizeof(Size));
+    int width, height;
+    if(!TTF_GetStringSize(font, text, 0,
+           &width, &height)) {
+            SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Unable to measure string %s. %s", text, SDL_GetError());
+            return 0;
+    }
+    size->width = width;
+    size->height = height;
+
+    return size;
 }
 
 void board_close_font(TTF_Font *font) {

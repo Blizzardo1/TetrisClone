@@ -10,6 +10,11 @@
 #define LOG_RENDER() SDL_LogError(SDL_LOG_CATEGORY_RENDER, "Renderer is null or was never specified!");
 
 
+typedef struct {
+    float width;
+    float height;
+} Size;
+
 /**
  * @brief Gets the backend board.
  */
@@ -140,9 +145,18 @@ void board_fill_rect(int x, int y, int width, int height, SDL_Color color);
  * @brief Loads a font for rendering.
  *
  * @param fontPath the path of the font to load.
- * @param fontSize the initial size of the font.
+ * @param font_size the initial size of the font.
  */
-void board_load_font(const char *fontPath, float fontSize);
+void board_load_font(const char *fontPath, float font_size);
+
+/**
+ * @brief Measures the text based on the current loaded font.
+ *
+ * @param text the text to measure
+ * @param font_size the font size to measure against.
+ * @return Size* the width and height in pixels of the string.
+ */
+Size* board_measure_string(char *text, int font_size);
 
 /**
  * @brief Destroys any context of the font.

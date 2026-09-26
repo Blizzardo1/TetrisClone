@@ -11,7 +11,7 @@ void timer_init();
 
 /**
  * @brief Gets a random between min and max.
- * 
+ *
  * @param min the lowest number.
  * @param max the highest number.
  * @return int a random number within the range of min and max.

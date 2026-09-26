@@ -3,6 +3,8 @@
 #include "timer.h"
 #include "piece.h"
 
+// The following Tetrominos must be set with a constant
+// color and cannot use the MACRO defined colors.
 Tetromino J = {
     .name = "J",
     .block = {
@@ -102,7 +104,7 @@ Tetromino* piece_tetromino_copy(Tetromino *tetromino) {
     return t;
 }
 
-Tetromino* piece_get_random() {
+Tetromino* piece_get_random(void) {
     int rand = timer_get_rand(0, 6);
     switch(rand) {
         case 0: return piece_tetromino_copy(&J);
@@ -117,11 +119,11 @@ Tetromino* piece_get_random() {
     return NULL;
 }
 
-Tetromino* piece_get_current() {
+Tetromino* piece_get_current(void) {
     return current;
 }
 
-Tetromino* piece_get_next() {
+Tetromino* piece_get_next(void) {
     return next;
 }
 

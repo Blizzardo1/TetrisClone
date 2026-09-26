@@ -11,7 +11,7 @@ Uint32 deltatime;
 Uint32 lasttime;
 Uint32 locktime;
 
-void timer_init() {
+void timer_init(void) {
     srand(time(NULL));
 }
 
@@ -26,11 +26,11 @@ int timer_get_rand(int min, int max) {
     return min + (int)(r % range);
 }
 
-Uint32 timer_get_lasttime() {
+Uint32 timer_get_lasttime(void) {
     return lasttime;
 }
 
-Uint32 timer_get_deltatime() {
+Uint32 timer_get_deltatime(void) {
     return deltatime;
 }
 

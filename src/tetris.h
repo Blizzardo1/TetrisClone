@@ -8,6 +8,18 @@
 #define ASPECT_RATIO 16.f / 9.f // Respect 16:9
 
 /**
+ * @brief Gets the window width.
+ * @return int the window width of the current SDL_Window.
+ */
+int tetris_get_window_width(void);
+
+/**
+ * @brief Gets the window height.
+ * @return int the window height of the current SDL_Window.
+ */
+int tetris_get_window_height(void);
+
+/**
  * @brief Locks the Tetromino in place.
  *
  * @param board the backend board.
@@ -18,12 +30,10 @@ void tetris_lock_tetromino(char (*board)[BOARD_WIDTH], int board_width);
 /**
  * @brief Initializes the Tetris Core.
  *
- * @param window the SDL_Window to acquire.
- * @param renderer the SDL_Renderer to acquire.
  * @param ww the window width.
  * @param wh the window height.
  */
-void tetris_init(SDL_Window *window, SDL_Renderer *renderer, int ww, int wh);
+void tetris_init(int ww, int wh);
 
 /**
  * @brief Updates the viewport of what's shown to the screen.
@@ -48,7 +58,7 @@ void tetris_update(SDL_Event *event);
 /**
  * @brief Will stop the game.
  */
-void tetris_end();
+void tetris_end(void);
 
 /**
  * @brief Gets the current running state of the game.
@@ -56,7 +66,7 @@ void tetris_end();
  * @return true game is still running.
  * @return false game is no longer running.
  */
-bool tetris_get_state();
+bool tetris_get_state(void);
 
 /**
  * @brief Sets the new running state of the game.

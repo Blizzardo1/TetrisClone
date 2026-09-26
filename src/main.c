@@ -3,6 +3,7 @@
 
 #include "color.h"
 #include "log.h"
+#include "menu.h"
 #include "tetris.h"
 
 #define WINDOW_TITLE "Tetris"
@@ -49,9 +50,12 @@ int SDLCALL loop(void *data) {
                  .format = "[$d $t] ($c | $p)"
         };
     log_set_formatter(format);
-    SDL_SetLogPriority(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_DEBUG);
+    SDL_SetLogPriority(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_INFO);
 
-    SDL_Window * window = SDL_CreateWindow(WINDOW_TITLE, INIT_SCREEN_WIDTH, INIT_SCREEN_HEIGHT, SDL_WINDOW_RESIZABLE );
+    SDL_Window * window = SDL_CreateWindow(WINDOW_TITLE,
+        INIT_SCREEN_WIDTH, INIT_SCREEN_HEIGHT,
+        SDL_WINDOW_RESIZABLE );
+
     if (!window) {
         SDL_Log("Failed to spawn window: %s", SDL_GetError());
         return 1;
@@ -66,15 +70,17 @@ int SDLCALL loop(void *data) {
 
     color_init(window, renderer);
     // Initialize the game.
-    tetris_init(window, renderer, INIT_SCREEN_WIDTH, INIT_SCREEN_HEIGHT);
+    tetris_init(INIT_SCREEN_WIDTH, INIT_SCREEN_HEIGHT);
+    menu_init();
+
     SDL_LogDebug(SDL_LOG_CATEGORY_APPLICATION, "Game Loop started.");
 
     SDL_Event event;
     while(tetris_get_state()) {
         while(SDL_PollEvent(&event)) {
             update(&event);
+            draw();
         }
-        draw();
         SDL_Delay(18);
     }
 
@@ -90,7 +96,9 @@ int main(void) {
     int return_value;
 
     if(thread == NULL) {
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Failed to create Game Loop thread. %s", SDL_GetError());
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
+            "Failed to create Game Loop thread. %s", SDL_GetError());
+
         return 1;
     }
 
