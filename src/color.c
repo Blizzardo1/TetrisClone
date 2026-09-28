@@ -34,8 +34,11 @@ float citf(uint8_t c) {
  * @return uint8_t converted float to int.
  */
 uint8_t cfti(float f) {
-    return (uint8_t)f * 255;
+    if (f < 0.0f) f = 0.0f;
+    if (f > 1.0f) f = 1.0f;
+    return (uint8_t)lroundf(f * 255.0f);
 }
+
 
 typedef struct {
     float r_prime;
@@ -60,10 +63,20 @@ ColorBaseLine color_base_line(SDL_Color color) {
 }
 
 float color_get_hue(SDL_Color color) {
-    ColorBaseLine base = color_base_line(color);
-    return base.c_max == base.r_prime? (float)fmod(base.g_prime - base.b_prime / base.c_delta, 6) * 60 :
-              base.c_max == base.g_prime ? (float)(base.b_prime - base.r_prime / base.c_delta) + 2 :
-              base.c_max == base.b_prime ? (float)(base.r_prime - base.g_prime / base.c_delta) + 4 : 0;
+        ColorBaseLine b = color_base_line(color);
+    if (b.c_delta == 0.0f) return 0.0f;           // achromatic
+
+    float h;
+    if (b.c_max == b.r_prime)
+        h = fmodf((b.g_prime - b.b_prime) / b.c_delta, 6.0f);
+    else if (b.c_max == b.g_prime)
+        h = (b.b_prime - b.r_prime) / b.c_delta + 2.0f;
+    else
+        h = (b.r_prime - b.g_prime) / b.c_delta + 4.0f;
+
+    h *= 60.0f;
+    if (h < 0.0f) h += 360.0f;
+    return h;
 }
 
 float color_get_saturation(SDL_Color color) {
@@ -76,26 +89,38 @@ float color_get_value(SDL_Color color) {
 }
 
 void color_set_hue(SDL_Color *color, float hue) {
+    if (!color) return;
     HSV hsv = color_rgb_to_hsv(*color);
     hsv.hue = hue;
-    SDL_Color c = color_hsv_to_rgb(hsv);
-    color = &c;
+    uint8_t a = color->a;
+    *color = color_hsv_to_rgb(hsv);
+    color->a = a;
 }
 
 void color_set_saturation(SDL_Color *color, float saturation) {
-
+    if (!color) return;
+    HSV hsv = color_rgb_to_hsv(*color);
+    hsv.saturation = fminf(fmaxf(saturation, 0.0f), 1.0f);
+    uint8_t a = color->a;
+    *color = color_hsv_to_rgb(hsv);
+    color->a = a;
 }
 
 void color_set_value(SDL_Color *color, float value) {
-
+    if (!color) return;
+    HSV hsv = color_rgb_to_hsv(*color);
+    hsv.value = fminf(fmaxf(value, 0.0f), 1.0f);
+    uint8_t a = color->a;
+    *color = color_hsv_to_rgb(hsv);
+    color->a = a;
 }
 
 float color_max(float r, float g, float b) {
-    return r > g ? r > b ? r : g > b ? g : b : 255;
+    return fmaxf(r, fmaxf(g,b));
 }
 
 float color_min(float r, float g, float b) {
-    return r < g ? r < b ? r : g < b ? g : b : 0;
+    return fminf(r, fminf(g, b));
 }
 
 HSV color_rgb_to_hsv(SDL_Color color) {
@@ -107,32 +132,31 @@ HSV color_rgb_to_hsv(SDL_Color color) {
 }
 
 SDL_Color color_hsv_to_rgb(HSV hsv) {
-    float C = hsv.value * hsv.saturation;
-    float X = C * (1 - fabs(fmod(hsv.hue / 60, 2) - 1));
-    float m = hsv.value - C;
-    SDL_Color color = hsv.hue > 0 && hsv.hue < 60 ? (SDL_Color){C, X, 0, 255} :
-                      hsv.hue > 60 && hsv.hue < 120 ? (SDL_Color){X, C, 0, 255} :
-                      hsv.hue > 120 && hsv.hue < 180 ? (SDL_Color){0, C, X, 255} :
-                      hsv.hue > 180 && hsv.hue < 240 ? (SDL_Color){0, X, C, 255} :
-                      hsv.hue > 240 && hsv.hue < 300 ? (SDL_Color){X, 0, C, 255} :
-                      hsv.hue > 300 && hsv.hue < 360 ? (SDL_Color){C, 0, X, 255} :
-                      // Unbound Color Hue I suppose.
-                      BLACK;
+    float h = fmodf(hsv.hue, 360.0f);
+    if (h < 0.0f) h += 360.0f;
 
-    return color;
+    float C = hsv.value * hsv.saturation;
+    float X = C * (1.0f - fabsf(fmodf(h / 60.0f, 2.0f) - 1.0f));
+    float m = hsv.value - C;
+    float r, g, b;
+
+    switch ((int)(h / 60.0f)) {
+        case 0:  r = C; g = X; b = 0; break;
+        case 1:  r = X; g = C; b = 0; break;
+        case 2:  r = 0; g = C; b = X; break;
+        case 3:  r = 0; g = X; b = C; break;
+        case 4:  r = X; g = 0; b = C; break;
+        default: r = C; g = 0; b = X; break;   // 300..360
+    }
+    return (SDL_Color){ cfti(r + m), cfti(g + m), cfti(b + m), 255 };
 }
 
 void color_set_hsv(SDL_Color *color, HSV hsv) {
     *color = color_hsv_to_rgb(hsv);
 }
 
-SDL_Color color_determine_inverse(SDL_Color base) {
-    // We want to process whether the output should be white or black,
-    // depending on the lightness of the color passed in.
-    // We want to be able to have readable text, and I know this function name,
-    // needs some justice.
-
-    HSV hsv = color_rgb_to_hsv(base);
-    SDL_Log("Passed RGB(%d, %d, %d): HSV(%f, %f, %f)", base.r, base.g, base.b, hsv.hue, hsv.saturation, hsv.value);
-    return hsv.value > .5 ? BLACK : WHITE;
+SDL_Color color_contrast_text(SDL_Color base) {
+    // YIQ perceived brightness, 0..255
+    int y = (base.r * 299 + base.g * 587 + base.b * 114) / 1000;
+    return y >= 128 ? BLACK : WHITE;
 }

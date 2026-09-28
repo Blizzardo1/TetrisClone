@@ -142,7 +142,7 @@ void set_draw_color(SDL_Color color);
  * @param base the color to determine whether the output should be white or black.
  * @return SDL_Color the color white or black based on the value of the color.
  */
-SDL_Color color_determine_inverse(SDL_Color base);
+SDL_Color color_contrast_text(SDL_Color base);
 
 HSV color_rgb_to_hsv(SDL_Color color);
 SDL_Color color_hsv_to_rgb(HSV hsv);

@@ -79,7 +79,7 @@ void draw_button(Button *b) {
 
     board_draw_text(b->name, ((float)b->location.x + (b->size.width / 2) ) - (text_sz->width / 2),
         ((float)b->location.y + (b->size.height / 2)) - (text_sz->height / 2),
-         b->font_size, color_determine_inverse(dc));
+         b->font_size, color_contrast_text(dc));
 }
 
 void menu_init(void) {
