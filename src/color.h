@@ -59,6 +59,12 @@ static const KnownColor COLOR_TABLE[] = {
     #undef X
 };
 
+typedef struct {
+    float hue;
+    float saturation;
+    float value;
+} HSV;
+
 #define COLOR_TABLE_COUNT (sizeof(COLOR_TABLE) / sizeof(COLOR_TABLE[0]))
 
 static const inline SDL_Color* color_lookup(const char *name) {
@@ -108,8 +114,50 @@ static const inline SDL_Color* color_lookup(const char *name) {
 #define WHITE_ALPHA_50 (COLOR_TABLE[COLOR_IDX_WHITE_ALPHA_50].color)
 #define YELLOW         (COLOR_TABLE[COLOR_IDX_YELLOW].color)
 
+/**
+ * @brief Get the main renderer.
+ *
+ * @return SDL_Renderer* a pointer to the engine's main renderer.
+ */
 SDL_Renderer* get_renderer();
+/**
+ * @brief Initializes the backend renderer and window management.
+ * @remarks Yes, I know... The Color system is handling passing the renderer and window throughout the entire code. I should find a better solution to this.
+ *
+ * @param window the window to pass around.
+ * @param renderer the renderer to pass around.
+ */
 void color_init(SDL_Window *window, SDL_Renderer *renderer);
+
+/**
+ * @brief Set the current rendering draw color.
+ *
+ * @param color the color to set the global draw color to.
+ */
 void set_draw_color(SDL_Color color);
+
+/**
+ * @brief Determine whether the output color should be white or black depending on the color passed in.
+ *
+ * @param base the color to determine whether the output should be white or black.
+ * @return SDL_Color the color white or black based on the value of the color.
+ */
+SDL_Color color_determine_inverse(SDL_Color base);
+
+HSV color_rgb_to_hsv(SDL_Color color);
+SDL_Color color_hsv_to_rgb(HSV hsv);
+
+float color_get_hue(SDL_Color color);
+float color_get_saturation(SDL_Color color);
+float color_get_value(SDL_Color color);
+
+void color_set_hue(SDL_Color *color, float hue);
+void color_set_saturation(SDL_Color *color, float saturation);
+void color_set_value(SDL_Color *color, float value);
+
+void color_set_hsv(SDL_Color *color, HSV hsv);
+
+float color_max(float r, float g, float b);
+float color_min(float r, float g, float b);
 
 #endif

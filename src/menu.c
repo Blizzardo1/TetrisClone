@@ -77,12 +77,14 @@ void draw_button(Button *b) {
     board_fill_rect(p.x, p.y,
         sz.width, sz.height, dc);
 
-    board_draw_text(b->name, ((b->location.x + b->size.width) / 2) - (text_sz->width / 2),
-        (b->location.y + b->size.height) / 2 - (text_sz->height / 2),
-         b->font_size, b->text_color);
+    board_draw_text(b->name, ((float)b->location.x + (b->size.width / 2) ) - (text_sz->width / 2),
+        ((float)b->location.y + (b->size.height / 2)) - (text_sz->height / 2),
+         b->font_size, color_determine_inverse(dc));
 }
 
 void menu_init(void) {
+    SDL_Color test = ORANGE;
+    SDL_Log("Color Test: (%d, %d, %d) Hue (%f); Hue should be 39°", test.r, test.g, test.b, color_get_hue(test));
     _properties = MENU_INVISIBLE | MENU_FULL_SCREEN;
     btn_continue = (Button) {
         .name = "Continue",
@@ -96,8 +98,8 @@ void menu_init(void) {
         },
         .font_size = 20,
         .clicked = continue_clicked,
-        .normal = LIGHTGRAY,
-        .disabled = DARKGRAY,
+        .normal = DARKGRAY,
+        .disabled = (SDL_Color) {0x23, 0x23, 0x23, 0xFF},
         .highlight = YELLOW,
         .down = ORANGE,
         .text_color = WHITE,
@@ -116,8 +118,8 @@ void menu_init(void) {
         },
         .font_size = 20,
         .clicked = quit_clicked,
-        .normal = LIGHTGRAY,
-        .disabled = DARKGRAY,
+        .normal = DARKGRAY,
+        .disabled = (SDL_Color) {0x23, 0x23, 0x23, 0xFF},
         .highlight = YELLOW,
         .down = ORANGE,
         .text_color = WHITE,
